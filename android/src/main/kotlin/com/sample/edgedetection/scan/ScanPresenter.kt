@@ -17,6 +17,7 @@ import android.widget.Toast
 import com.sample.edgedetection.REQUEST_CODE
 import com.sample.edgedetection.SourceManager
 import com.sample.edgedetection.crop.CropActivity
+import com.sample.edgedetection.base.BaseActivity
 import com.sample.edgedetection.processor.Corners
 import com.sample.edgedetection.processor.processPicture
 import io.reactivex.Observable
@@ -174,7 +175,9 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA)
                     SourceManager.pic = pic
 
-                    (context as Activity)?.startActivityForResult(Intent(context, CropActivity::class.java),REQUEST_CODE)
+                    var intent = Intent(Intent(context, CropActivity::class.java))
+                    intent.putExtra("use_internal_storage", (context as BaseActivity)?.use_internal_storage)
+                    (context as Activity)?.startActivityForResult(intent, REQUEST_CODE)
                     busy = false
                 }
     }

@@ -9,4 +9,8 @@ class EdgeDetection {
     final String version = await _channel.invokeMethod('edge_detect');
     return version;
   }
+
+  static useInternalStorage(bool use_internal_storage) {
+    _channel.invokeMethod('use_internal_storage', use_internal_storage);
+  }
 }

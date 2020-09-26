@@ -37,13 +37,15 @@ class ScanActivity : BaseActivity(), IScanView.Proxy {
             Log.i(TAG, "loading opencv error, exit")
             finish()
         }
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
-        } else if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
-        } else if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
+
+        var requestPermissions = mutableListOf<String>()
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions.add(android.Manifest.permission.CAMERA)
+        if (!use_internal_storage && ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            requestPermissions.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        if (!requestPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(this, requestPermissions.toTypedArray(), REQUEST_CAMERA_PERMISSION)
         }
 
         shut.setOnClickListener {

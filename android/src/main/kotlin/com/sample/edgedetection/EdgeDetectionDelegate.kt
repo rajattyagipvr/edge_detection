@@ -12,6 +12,7 @@ class EdgeDetectionDelegate(activity: Activity) : PluginRegistry.ActivityResultL
     private var activity: Activity = activity
     private var result: MethodChannel.Result? = null
     private var methodCall: MethodCall? = null
+    public var use_internal_storage = false
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
@@ -39,6 +40,7 @@ class EdgeDetectionDelegate(activity: Activity) : PluginRegistry.ActivityResultL
         }
 
         var intent = Intent(Intent(activity.applicationContext, ScanActivity::class.java))
+        intent.putExtra("use_internal_storage", use_internal_storage)
         activity.startActivityForResult(intent,REQUEST_CODE)
     }
 

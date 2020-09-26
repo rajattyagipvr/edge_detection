@@ -7,9 +7,12 @@ import androidx.appcompat.app.AppCompatActivity
 abstract class BaseActivity : AppCompatActivity() {
 
     protected val TAG = this.javaClass.simpleName
+    var use_internal_storage = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        var intent = getIntent()
+        use_internal_storage = intent.getBooleanExtra("use_internal_storage", false)
         setContentView(provideContentViewId())
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         initPresenter()

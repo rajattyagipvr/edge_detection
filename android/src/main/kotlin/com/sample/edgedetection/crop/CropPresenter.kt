@@ -14,6 +14,7 @@ import com.sample.edgedetection.processor.Corners
 import com.sample.edgedetection.processor.TAG
 import com.sample.edgedetection.processor.cropPicture
 import com.sample.edgedetection.processor.enhancePicture
+import com.sample.edgedetection.base.BaseActivity
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -101,10 +102,11 @@ class CropPresenter(val context: Context, private val iCropView: ICropView.Proxy
     }
 
     fun save(): String? {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        var use_internal_storage = (context as BaseActivity)?.use_internal_storage
+        if (!use_internal_storage && ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(context, "please grant write file permission and trya gain", Toast.LENGTH_SHORT).show()
         } else {
-            val dir = File(Environment.getExternalStorageDirectory(), IMAGES_DIR)
+            val dir = File(if (!use_internal_storage) Environment.getExternalStorageDirectory() else context.getCacheDir(), IMAGES_DIR)
             if (!dir.exists()) {
                 dir.mkdirs()
             }
