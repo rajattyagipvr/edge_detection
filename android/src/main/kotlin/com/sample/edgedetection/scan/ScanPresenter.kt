@@ -12,9 +12,14 @@ import android.hardware.Camera
 import android.media.MediaActionSound
 import android.os.Build
 import android.os.SystemClock
+import android.hardware.Camera.ShutterCallback
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.util.Log
 import android.view.SurfaceHolder
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
+import com.sample.edgedetection.R
 import com.sample.edgedetection.REQUEST_CODE
 import com.sample.edgedetection.SourceManager
 import com.sample.edgedetection.crop.CropActivity
@@ -55,6 +60,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
     private val proxySchedule: Scheduler
     private var busy: Boolean = false
     private var mCameraLensFacing: String = "0"
+    private var soundSilence :MediaPlayer = MediaPlayer()
 
     var mLastClickTime=0L
 
@@ -62,6 +68,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         mSurfaceHolder.addCallback(this)
         executor = Executors.newSingleThreadExecutor()
         proxySchedule = Schedulers.from(executor)
+        soundSilence = MediaPlayer.create(this.context, R.raw.silence);
     }
     fun isOpenRecently():Boolean{
         if (SystemClock.elapsedRealtime() - mLastClickTime < 3000){
@@ -86,9 +93,8 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         }
         busy = true
         Log.i(TAG, "try to focus")
-
-            mCamera?.takePicture(null, null, this)
-           // MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
+        mCamera?.takePicture(null, null, this)
+       // MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
 
     }
 
@@ -156,11 +162,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
         param?.setPreviewSize(size?.width ?: 1920, size?.height ?: 1080)
         val display = iView.getDisplay()
         val point = Point()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            display.getRealSize(point)
-        }else{
-            display.getSize(point)
-        }
+        display.getRealSize(point)
         val displayWidth = minOf(point.x, point.y)
         val displayHeight = maxOf(point.x, point.y)
         val displayRatio = displayWidth.div(displayHeight.toFloat())
@@ -185,7 +187,7 @@ class ScanPresenter constructor(private val context: Context, private val iView:
             param?.setPictureSize(pictureSize.width, pictureSize.height)
         }
         val pm = context.packageManager
-        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS) && mCamera!!.parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS)) {
             param?.focusMode = Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE
             Log.d(TAG, "enabling autofocus")
         } else {
@@ -232,10 +234,10 @@ class ScanPresenter constructor(private val context: Context, private val iView:
                     SourceManager.corners = processPicture(pic)
                     Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA)
                     SourceManager.pic = pic
-
                     var intent = Intent(Intent(context, CropActivity::class.java))
                     intent.putExtra("use_internal_storage", (context as BaseActivity)?.use_internal_storage)
                     (context as Activity)?.startActivityForResult(intent, REQUEST_CODE)
+
                     busy = false
                 }
     }
