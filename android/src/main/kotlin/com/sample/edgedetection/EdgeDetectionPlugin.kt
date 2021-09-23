@@ -25,11 +25,11 @@ class EdgeDetectionPlugin(private val registrar: Registrar, private val delegate
   }
 
   override fun onMethodCall(call: MethodCall, result: Result): Unit {
-    if (registrar.activity() == null) {
-      result.error("no_activity", "edge_detection plugin requires a foreground activity.", null)
-      return
-    }
-    else if (call.method.equals("use_internal_storage")) {
+    // if (registrar.activity() == null) {
+      // result.error("no_activity", "edge_detection plugin requires a foreground activity.", null)
+      // return
+    // }
+     if (call.method.equals("use_internal_storage")) {
       delegate.use_internal_storage = call.arguments === true
       result.success(null)
     } else if (call.method.equals("edge_detect")) {
